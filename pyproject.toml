@@ -28,8 +28,8 @@ CI = "https://github.com/datasette/datasette-files-s3/actions"
 [project.entry-points.datasette]
 files_s3 = "datasette_files_s3"
 
-[project.optional-dependencies]
-test = ["pytest", "pytest-asyncio"]
+[dependency-groups]
+dev = ["pytest", "pytest-asyncio"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
