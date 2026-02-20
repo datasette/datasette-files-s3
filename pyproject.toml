@@ -1,13 +1,12 @@
 [project]
 name = "datasette-files-s3"
-version = "0.1"
+version = "0.1a0"
 description = "datasette-files S3 backend"
 readme = "README.md"
 authors = [{name = "Simon Willison"}]
 license = {text = "Apache-2.0"}
 classifiers=[
-    "Framework :: Datasette",
-    "License :: OSI Approved :: Apache Software License"
+    "Framework :: Datasette"
 ]
 requires-python = ">=3.10"
 dependencies = [
