@@ -10,3 +10,7 @@ venv
 .vscode
 dist
 build
+dev-s3.sh
+data.db
+internal.db
+uv.lock
