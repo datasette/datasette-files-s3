@@ -20,6 +20,8 @@ class S3Storage(Storage):
     async def configure(self, config: dict, get_secret) -> None:
         self.bucket = config["bucket"]
         self.prefix = config.get("prefix", "")
+        if self.prefix and not self.prefix.endswith("/"):
+            self.prefix += "/"
         self.region = config.get("region", "us-east-1")
         self.endpoint_url = config.get("endpoint_url")
 

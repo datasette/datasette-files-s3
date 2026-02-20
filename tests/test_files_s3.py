@@ -238,6 +238,33 @@ async def test_prefix_is_prepended(s3_mock):
 
 
 @pytest.mark.asyncio
+async def test_prefix_trailing_slash_normalized(s3_mock):
+    await _create_bucket()
+    storage = await _make_storage(prefix="uploads")  # no trailing slash
+
+    await storage.receive_upload("test.txt", b"hello", "text/plain")
+
+    # Verify the file is at the correctly prefixed key in S3
+    session = aioboto3.Session()
+    async with session.client("s3", region_name=REGION) as client:
+        resp = await client.get_object(Bucket=BUCKET, Key="uploads/test.txt")
+        body = await resp["Body"].read()
+        assert body == b"hello"
+
+    # Storage methods should work with unprefixed paths
+    data = await storage.read_file("test.txt")
+    assert data == b"hello"
+
+    meta = await storage.get_file_metadata("test.txt")
+    assert meta is not None
+    assert meta.path == "test.txt"
+
+    files, _ = await storage.list_files()
+    assert len(files) == 1
+    assert files[0].path == "test.txt"
+
+
+@pytest.mark.asyncio
 async def test_download_url(s3_mock):
     await _create_bucket()
     storage = await _make_storage()
