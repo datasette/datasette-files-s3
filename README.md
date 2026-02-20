@@ -75,6 +75,11 @@ Run tests like this:
 uv run pytest
 ```
 
+You can use [SeaweedFS](https://github.com/seaweedfs/seaweedfs) to run a local development server against a local imitation of the S3 API:
+```bash
+brew install seaweedfs
+./dev-server.sh
+```
 To run a local development server against a real S3 bucket, create a `dev-s3.sh` script (this file is in `.gitignore`):
 
 ```bash
