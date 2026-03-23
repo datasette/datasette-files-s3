@@ -87,8 +87,7 @@ The plugin resolves AWS credentials using the following priority:
 
 1. **Credentials broker**: If `credentials_url` is configured, the plugin fetches temporary credentials by `POST`ing `secret=...` to that URL. It stores the returned `AccessKeyId`, `SecretAccessKey`, `SessionToken`, `Expiration`, and `S3Folder`, and automatically fetches a fresh set after the expiration time passes. The returned `S3Folder` also sets the active bucket and prefix for the source.
 2. **Direct configuration**: `access_key_id`, `secret_access_key`, and optional `session_token` in the config block.
-3. **datasette-secrets**: If [datasette-secrets](https://github.com/datasette/datasette-secrets) is installed, the plugin will look for `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` secrets.
-4. **Default AWS credential chain**: If no credentials are provided through the above methods, the plugin falls back to the default AWS credential chain (environment variables, IAM roles, etc.).
+3. **Default AWS credential chain**: If no credentials are provided through the above methods, the plugin falls back to the default AWS credential chain (environment variables, IAM roles, etc.).
 
 ### Prefix
 

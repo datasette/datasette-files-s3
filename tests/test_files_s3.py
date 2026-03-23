@@ -48,7 +48,6 @@ async def _make_storage(prefix="", bucket=BUCKET):
     storage = S3Storage()
     await storage.configure(
         {"bucket": bucket, "prefix": prefix, "region": REGION},
-        get_secret=None,
     )
     return storage
 
@@ -88,7 +87,6 @@ async def test_configure(s3_mock):
     storage = S3Storage()
     await storage.configure(
         {"bucket": "my-bucket", "prefix": "uploads/", "region": "eu-west-1"},
-        get_secret=None,
     )
     assert storage.bucket == "my-bucket"
     assert storage.prefix == "uploads/"
@@ -98,43 +96,9 @@ async def test_configure(s3_mock):
 @pytest.mark.asyncio
 async def test_configure_defaults(s3_mock):
     storage = S3Storage()
-    await storage.configure({"bucket": "my-bucket"}, get_secret=None)
+    await storage.configure({"bucket": "my-bucket"})
     assert storage.prefix == ""
     assert storage.region == "us-east-1"
-
-
-@pytest.mark.asyncio
-async def test_configure_with_get_secret(s3_mock):
-    secrets = {
-        "AWS_ACCESS_KEY_ID": "secret-key-id",
-        "AWS_SECRET_ACCESS_KEY": "secret-access-key",
-    }
-
-    async def get_secret(name):
-        return secrets.get(name)
-
-    storage = S3Storage()
-    await storage.configure({"bucket": "my-bucket"}, get_secret=get_secret)
-    assert storage.access_key_id == "secret-key-id"
-    assert storage.secret_access_key == "secret-access-key"
-
-
-@pytest.mark.asyncio
-async def test_configure_config_overrides_secrets(s3_mock):
-    async def get_secret(name):
-        return "from-secrets"
-
-    storage = S3Storage()
-    await storage.configure(
-        {
-            "bucket": "my-bucket",
-            "access_key_id": "from-config",
-            "secret_access_key": "from-config-secret",
-        },
-        get_secret=get_secret,
-    )
-    assert storage.access_key_id == "from-config"
-    assert storage.secret_access_key == "from-config-secret"
 
 
 @pytest.mark.asyncio
@@ -157,7 +121,6 @@ async def test_configure_with_credentials_url(monkeypatch, s3_mock):
             "credentials_url": "https://example.com/credentials",
             "credentials_url_secret": "secret value",
         },
-        get_secret=None,
     )
 
     assert seen["url"] == "https://example.com/credentials"
@@ -206,7 +169,6 @@ async def test_credentials_url_refreshes_after_expiration(monkeypatch, s3_mock):
             "credentials_url": "https://example.com/credentials",
             "credentials_url_secret": "refresh-me",
         },
-        get_secret=None,
     )
 
     assert seen["count"] == 1

@@ -23,7 +23,7 @@ class S3Storage(Storage):
         requires_proxy_download=False,
     )
 
-    async def configure(self, config: dict, get_secret) -> None:
+    async def configure(self, config: dict, get_secret=None) -> None:
         self.bucket = config.get("bucket")
         self.prefix = self._normalize_prefix(config.get("prefix", ""))
         self.region = config.get("region", "us-east-1")
@@ -32,23 +32,12 @@ class S3Storage(Storage):
         self.credentials_url_secret = config.get("credentials_url_secret")
         self.s3_folder = None
 
-        # Try config first, then datasette-secrets, then fall back to default chain
         self.access_key_id = config.get("access_key_id")
         self.secret_access_key = config.get("secret_access_key")
         self.session_token = config.get("session_token")
         self.credentials_expiration = None
         self.session = None
         self._credentials_lock = asyncio.Lock()
-
-        if get_secret is not None:
-            if not self.access_key_id:
-                self.access_key_id = await get_secret("AWS_ACCESS_KEY_ID")
-            if not self.secret_access_key:
-                self.secret_access_key = await get_secret("AWS_SECRET_ACCESS_KEY")
-            if self.credentials_url and not self.credentials_url_secret:
-                self.credentials_url_secret = await get_secret(
-                    "S3_CREDENTIALS_URL_SECRET"
-                )
 
         if not self.bucket and not self.credentials_url:
             raise ValueError("S3 storage requires either bucket or credentials_url")
