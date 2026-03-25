@@ -1,11 +1,14 @@
 import asyncio
 import hashlib
 import json
+import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import AsyncIterator, Optional
 from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
+
+logger = logging.getLogger("datasette_files_s3")
 
 import aioboto3
 from botocore.exceptions import ClientError
@@ -42,7 +45,15 @@ class S3Storage(Storage):
         if not self.bucket and not self.credentials_url:
             raise ValueError("S3 storage requires either bucket or credentials_url")
 
-        await self._ensure_credentials(force=True)
+        try:
+            await self._ensure_credentials(force=True)
+        except Exception as e:
+            logger.warning(
+                "Failed to fetch initial S3 credentials from %s: %s — "
+                "will retry when credentials are needed",
+                self.credentials_url,
+                e,
+            )
 
     @staticmethod
     def _normalize_prefix(prefix: str) -> str:

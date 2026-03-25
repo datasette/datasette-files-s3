@@ -1,6 +1,7 @@
 import hashlib
 import json
 from datetime import datetime, timedelta, timezone
+from urllib.error import HTTPError
 
 import aioboto3
 import pytest
@@ -410,6 +411,29 @@ async def test_capabilities():
 async def test_storage_type():
     storage = S3Storage()
     assert storage.storage_type == "s3"
+
+
+@pytest.mark.asyncio
+async def test_configure_credentials_url_404_does_not_block_startup(
+    monkeypatch, s3_mock
+):
+    """A 404 from the credentials URL should not prevent configure() from completing."""
+
+    def fake_urlopen(request):
+        raise HTTPError(request.full_url, 404, "Not Found", {}, None)
+
+    monkeypatch.setattr("datasette_files_s3.urlopen", fake_urlopen)
+
+    storage = S3Storage()
+    # Should not raise
+    await storage.configure(
+        {
+            "credentials_url": "https://example.com/credentials",
+            "credentials_url_secret": "secret value",
+        },
+    )
+    # Session should be None since credentials were not fetched
+    assert storage.session is None
 
 
 @pytest.mark.asyncio
